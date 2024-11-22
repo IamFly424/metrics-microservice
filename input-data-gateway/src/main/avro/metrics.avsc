@@ -1,0 +1,12 @@
+{
+  "namespace": "org.iamfly.inputdatagateway.model",
+  "type": "record",
+  "name": "Metrics",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string"
+    },
+
+  ]
+}

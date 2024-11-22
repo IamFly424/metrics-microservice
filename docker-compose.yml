@@ -1,0 +1,77 @@
+services:
+  config-service:
+    container_name: config-service
+    image: config-service:latest
+    ports:
+      - 9000:9000
+    networks:
+      - metrics
+
+  discovery-service:
+    container_name: discovery-service
+    image: discovery-service:latest
+    restart: always
+    ports:
+      - 8761:8761
+    networks:
+      - metrics
+    depends_on:
+      - config-service
+
+  input-data-gateway:
+    container_name: input-data-gateway
+    image: input-data-gateway:latest
+    ports:
+      - 8001:8001
+    networks:
+      - metrics
+    depends_on:
+      - config-service
+      - discovery-service
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.0
+    container_name: schema-registry
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+
+
+
+
+
+
+networks:
+  metrics:
+    driver: bridge
+
+volumes:
+  metrics-db:

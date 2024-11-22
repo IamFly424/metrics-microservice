@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: input-data-gateway
+  config:
+    import: configserver:http://config-service:9000

@@ -1,0 +1,12 @@
+spring:
+    application:
+      name: config-service
+    profiles:
+      active: native
+
+    output:
+      ansi:
+        enabled: always
+
+server:
+  port: 9000
